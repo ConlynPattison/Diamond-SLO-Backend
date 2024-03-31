@@ -28,6 +28,18 @@ type SurveyResponse = {
 	answer: string | number;
 };
 
+/**
+ * Fetches local xlsx file's sheet data and returns it as json.
+ * Not friendly on memory as column name (question) included with each property.
+ */
+const getSheetJSON = (dirname: string, xlsxPath: string) => {
+	const workbook = XLSX.readFile(path.resolve(dirname, xlsxPath))
+	const sheetName = workbook.SheetNames[0];
+	const worksheet = workbook.Sheets[sheetName];
+
+	return XLSX.utils.sheet_to_json(worksheet);;
+}
+
 app.get("/", (req, res) => {
 	res.send("hello world");
 });
@@ -51,10 +63,7 @@ app.get("/api/dummy", (req, res) => {
 
 
 app.get("/api/dummy1", async (req, res) => {
-	const workbook = XLSX.readFile(path.resolve(__dirname, "../data/test.xlsx"))
-	const sheetName = workbook.SheetNames[0];
-	const worksheet = workbook.Sheets[sheetName];
-	const json = XLSX.utils.sheet_to_json(worksheet);
+	const json = getSheetJSON(__dirname, "../data/test.xlsx")
 
 	res.status(200).json(json)
 })
